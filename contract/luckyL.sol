@@ -47,11 +47,10 @@ contract Lottery {
         _;
     }
 
-    constructor(uint256 _ticketPrice) {
+    constructor() {
         owner = msg.sender;
         lastDrawTime = block.timestamp;
         firstPrizeAmount = 0;
-        ticketPrice = _ticketPrice;
     }
 
     function pause() external onlyOwner {
