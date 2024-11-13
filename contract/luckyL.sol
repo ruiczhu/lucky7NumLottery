@@ -17,7 +17,7 @@ contract Lottery {
     Ticket[] public tickets;
     Winner[] public winners; // 存储所有中奖者
 
-    uint256 public ticketPrice = 0 ether;
+    uint256 public ticketPrice = 0.001 ether;
     uint256 public lastDrawTime; // 上次开奖时间
     uint256 public drawInterval = 3 days; // 开奖间隔
 
@@ -63,10 +63,6 @@ contract Lottery {
     function unpause() external onlyOwner {
         paused = false;
         emit Unpaused();
-    }
-    
-    function setTicketPrice(uint256 _ticketPrice) external onlyOwner {
-        ticketPrice = _ticketPrice;
     }
 
     function buyTicket(string memory _number, uint256 _quantity) public payable whenNotPaused{
