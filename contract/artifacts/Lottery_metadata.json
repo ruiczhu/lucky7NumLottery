@@ -35,6 +35,12 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
+						"name": "drawId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
 						"name": "drawTime",
 						"type": "uint256"
 					},
@@ -45,32 +51,10 @@
 						"type": "string"
 					},
 					{
-						"components": [
-							{
-								"internalType": "address",
-								"name": "winnerAddress",
-								"type": "address"
-							},
-							{
-								"internalType": "string",
-								"name": "winningNumber",
-								"type": "string"
-							},
-							{
-								"internalType": "string",
-								"name": "prize",
-								"type": "string"
-							},
-							{
-								"internalType": "uint256",
-								"name": "amount",
-								"type": "uint256"
-							}
-						],
 						"indexed": false,
-						"internalType": "struct Lottery.Winner[]",
-						"name": "winners",
-						"type": "tuple[]"
+						"internalType": "uint256",
+						"name": "totalWinners",
+						"type": "uint256"
 					}
 				],
 				"name": "LotteryDraw",
@@ -108,6 +92,12 @@
 						"internalType": "uint256",
 						"name": "amount",
 						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "drawId",
+						"type": "uint256"
 					}
 				],
 				"name": "PrizeDistributed",
@@ -132,6 +122,12 @@
 						"indexed": false,
 						"internalType": "uint256",
 						"name": "quantity",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
 						"type": "uint256"
 					}
 				],
@@ -187,6 +183,35 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "draws",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "drawId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "winningNumber",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "drawTime",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "firstPrizeAmount",
 				"outputs": [
@@ -227,7 +252,70 @@
 			},
 			{
 				"inputs": [],
-				"name": "getTickets",
+				"name": "getDraws",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "drawId",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "winningNumber",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "drawTime",
+								"type": "uint256"
+							},
+							{
+								"components": [
+									{
+										"internalType": "address",
+										"name": "winnerAddress",
+										"type": "address"
+									},
+									{
+										"internalType": "string",
+										"name": "winningNumber",
+										"type": "string"
+									},
+									{
+										"internalType": "string",
+										"name": "prize",
+										"type": "string"
+									},
+									{
+										"internalType": "uint256",
+										"name": "amount",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct Lottery.Winner[]",
+								"name": "winners",
+								"type": "tuple[]"
+							}
+						],
+						"internalType": "struct Lottery.Draw[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_user",
+						"type": "address"
+					}
+				],
+				"name": "getUserTickets",
 				"outputs": [
 					{
 						"components": [
@@ -240,44 +328,14 @@
 								"internalType": "string",
 								"name": "number",
 								"type": "string"
-							}
-						],
-						"internalType": "struct Lottery.Ticket[]",
-						"name": "",
-						"type": "tuple[]"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getWinners",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "address",
-								"name": "winnerAddress",
-								"type": "address"
-							},
-							{
-								"internalType": "string",
-								"name": "winningNumber",
-								"type": "string"
-							},
-							{
-								"internalType": "string",
-								"name": "prize",
-								"type": "string"
 							},
 							{
 								"internalType": "uint256",
-								"name": "amount",
+								"name": "purchaseTime",
 								"type": "uint256"
 							}
 						],
-						"internalType": "struct Lottery.Winner[]",
+						"internalType": "struct Lottery.Ticket[]",
 						"name": "",
 						"type": "tuple[]"
 					}
@@ -389,6 +447,11 @@
 						"internalType": "string",
 						"name": "number",
 						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "purchaseTime",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -404,35 +467,48 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
 					}
 				],
-				"name": "winners",
+				"name": "userTickets",
 				"outputs": [
 					{
 						"internalType": "address",
-						"name": "winnerAddress",
+						"name": "buyer",
 						"type": "address"
 					},
 					{
 						"internalType": "string",
-						"name": "winningNumber",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "prize",
+						"name": "number",
 						"type": "string"
 					},
 					{
 						"internalType": "uint256",
-						"name": "amount",
+						"name": "purchaseTime",
 						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "withdrawFunds",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -468,11 +544,11 @@
 	},
 	"sources": {
 		"contract/luckyL.sol": {
-			"keccak256": "0x03880d31738bd1703c94a40d622c9718aba3513bc0ffc6688bfaf250ff3cd202",
+			"keccak256": "0xd96b5e12327855f6146d69145204781ebdf80ad80b7195f27d54673b029b15d5",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://8dd725af65d3373b55f353cbc677bdc1eb052e134d52e2baadf7daa937b1658e",
-				"dweb:/ipfs/QmUjwe263af1jRz7uoAAh2p65nhgWWrtduEr48onHZvtng"
+				"bzz-raw://e24f217f5a1189c22150dfcfa4a9dbb65e4e83370b51e309bea8844fa28f90c2",
+				"dweb:/ipfs/QmZ4Z1xMeXJHGaXzGid6jNu1Ej65uW4kPngmpJrf9YdNRf"
 			]
 		}
 	},

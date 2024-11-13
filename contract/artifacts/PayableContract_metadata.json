@@ -33,11 +33,11 @@
 	},
 	"sources": {
 		"contract/luckyL.sol": {
-			"keccak256": "0x03880d31738bd1703c94a40d622c9718aba3513bc0ffc6688bfaf250ff3cd202",
+			"keccak256": "0x72b070754dcac472aa3cbf03ddf674717ec5c4417acf31fb607c58bc49f01a62",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://8dd725af65d3373b55f353cbc677bdc1eb052e134d52e2baadf7daa937b1658e",
-				"dweb:/ipfs/QmUjwe263af1jRz7uoAAh2p65nhgWWrtduEr48onHZvtng"
+				"bzz-raw://a67d984c7a2720d238816c673acd3b99c3628e84f09d057fa45a6cc2efda490e",
+				"dweb:/ipfs/QmXzg6tKheprBSeQVsG8sCS7uQzi3n7SuKNEbToS5bAejG"
 			]
 		}
 	},

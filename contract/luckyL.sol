@@ -1,15 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract PayableContract {
-
-}
-
-
 contract Lottery {
     struct Ticket {
         address buyer;
-        string number; // 彩票号码
+        string number;
+        uint256 purchaseTime; 
     }
 
     struct Winner {
@@ -19,26 +15,36 @@ contract Lottery {
         uint256 amount;
     }
 
+    struct Draw {
+        uint256 drawId;
+        string winningNumber;
+        uint256 drawTime;
+        Winner[] winners;
+    }
+
     Ticket[] public tickets;
-    Winner[] public winners; // 存储所有中奖者
+    mapping(address => Ticket[]) public userTickets;
+
+    Draw[] public draws;
 
     uint256 public ticketPrice = 0.001 ether;
-    uint256 public lastDrawTime; // 上次开奖时间
-    uint256 public drawInterval = 3 days; // 开奖间隔
+    uint256 public lastDrawTime;
+    uint256 public drawInterval = 3 days;
 
-    // 奖金设置
-    uint256 public firstPrizeAmount; // 一等奖奖池
+    uint256 public firstPrizeAmount;
     uint256 public immutable secondPrizeAmount = 2 ether;
     uint256 public immutable thirdPrizeAmount = 1 ether;
     uint256 public immutable fourthPrizeAmount = 0.5 ether;
 
-    address public owner; // 合约拥有者
+    address public owner;
     bool public paused = false;
 
-    event TicketPurchased(address indexed buyer, string number, uint256 quantity);
-    event LotteryDraw(uint256 drawTime, string winningNumber, Winner[] winners);
-    event PrizeDistributed(address indexed winner, string number, string prize, uint256 amount);
-    event FundsWithdrawn(address indexed to, uint256 amount); // 提取资金事件
+    uint256 private drawCounter = 0;
+
+    event TicketPurchased(address indexed buyer, string number, uint256 quantity, uint256 timestamp);
+    event LotteryDraw(uint256 drawId, uint256 drawTime, string winningNumber, uint256 totalWinners);
+    event PrizeDistributed(address indexed winner, string number, string prize, uint256 amount, uint256 drawId);
+    event FundsWithdrawn(address indexed to, uint256 amount);
     event Paused();
     event Unpaused();
 
@@ -68,7 +74,6 @@ contract Lottery {
         emit Paused();
     }
 
-    // Function to unpause the contract
     function unpause() external onlyOwner {
         paused = false;
         emit Unpaused();
@@ -84,90 +89,93 @@ contract Lottery {
         }
         require(msg.value == ticketPrice * _quantity, "Incorrect ETH amount");
 
-        // 计算资金分配
         uint256 totalAmount = msg.value;
-        uint256 prizePoolContribution = totalAmount / 2; // 一半用于一等奖奖池
+        uint256 prizePoolContribution = totalAmount / 2;
 
-        firstPrizeAmount += prizePoolContribution; // 增加一等奖奖池
+        firstPrizeAmount += prizePoolContribution;
+
+        uint256 currentTime = block.timestamp;
 
         for (uint256 i = 0; i < _quantity; i++) {
-            tickets.push(Ticket(msg.sender, _number));
+            Ticket memory newTicket = Ticket(msg.sender, _number, currentTime);
+            tickets.push(newTicket);
+            userTickets[msg.sender].push(newTicket);
         }
 
-        emit TicketPurchased(msg.sender, _number, _quantity);
+        emit TicketPurchased(msg.sender, _number, _quantity, currentTime);
     }
 
     function drawLottery() public onlyOwner whenNotPaused{
         require(block.timestamp >= lastDrawTime + drawInterval, "It's not time to draw yet");
         require(tickets.length > 0, "No tickets purchased");
 
-        // 生成一个随机的 7 位数
         string memory winningNumber = generateRandomNumber();
-        delete winners; // 清空之前的中奖者记录
+        uint256 currentTime = block.timestamp;
 
-        // 查找中奖者
+        Draw storage newDraw = draws.push();
+        newDraw.drawId = ++drawCounter;
+        newDraw.winningNumber = winningNumber;
+        newDraw.drawTime = currentTime;
+
         uint256 firstPrizeWinnersCount = 0;
-
         uint256[] memory winningIndexes = new uint256[](tickets.length);
         uint256 winningIndexCount = 0;
 
         for (uint256 i = 0; i < tickets.length; i++) {
             uint256 difference = compareNumbers(tickets[i].number, winningNumber);
+
             if (difference == 0) {
                 firstPrizeWinnersCount++;
-                winningIndexes[winningIndexCount] = i; // 记录一等奖中奖者的索引
+                winningIndexes[winningIndexCount] = i;
                 winningIndexCount++;
             } else if (difference == 1) {
-                winners.push(Winner(tickets[i].buyer, tickets[i].number, "Second Prize", secondPrizeAmount));
-                // payable(tickets[i].buyer).transfer(secondPrizeAmount); // 发送二等奖奖金
-                (bool success, ) = payable(tickets[i].buyer).call{value: secondPrizeAmount}("");
-                require(success, "Transfer to second prize winner failed");
-                emit PrizeDistributed(tickets[i].buyer, tickets[i].number, "Second Prize", secondPrizeAmount);
+                distributePrize(tickets[i].buyer, tickets[i].number, "Second Prize", secondPrizeAmount, newDraw.drawId, newDraw.winners);
             } else if (difference == 2) {
-                winners.push(Winner(tickets[i].buyer, tickets[i].number, "Third Prize", thirdPrizeAmount));
-                // payable(tickets[i].buyer).transfer(thirdPrizeAmount); // 发送三等奖奖金
-                (bool success, ) = payable(tickets[i].buyer).call{value: thirdPrizeAmount}("");
-                require(success, "Transfer to third prize winner failed");
-                emit PrizeDistributed(tickets[i].buyer, tickets[i].number, "Third Prize", thirdPrizeAmount);
+                distributePrize(tickets[i].buyer, tickets[i].number, "Third Prize", thirdPrizeAmount, newDraw.drawId, newDraw.winners);
             } else if (difference == 3) {
-                winners.push(Winner(tickets[i].buyer, tickets[i].number, "Fourth Prize", fourthPrizeAmount));
-                // payable(tickets[i].buyer).transfer(fourthPrizeAmount); // 发送四等奖奖金
-                (bool success, ) = payable(tickets[i].buyer).call{value: fourthPrizeAmount}("");
-                require(success, "Transfer to fourth prize winner failed");
-                emit PrizeDistributed(tickets[i].buyer, tickets[i].number, "Fourth Prize", fourthPrizeAmount);
+                distributePrize(tickets[i].buyer, tickets[i].number, "Fourth Prize", fourthPrizeAmount, newDraw.drawId, newDraw.winners);
             }
         }
 
-        // 处理一等奖
         if (firstPrizeWinnersCount > 0) {
-            // 多人中一等奖，按比例分配
             uint256 prizePerWinner = firstPrizeAmount / firstPrizeWinnersCount;
             uint256 remainder = firstPrizeAmount % firstPrizeWinnersCount;
             for (uint256 j = 0; j < winningIndexCount; j++) {
                 address winnerAddress = tickets[winningIndexes[j]].buyer;
-                // payable(winnerAddress).transfer(prizePerWinner); // 发送奖金
-                winners.push(Winner(winnerAddress, tickets[winningIndexes[j]].number, "First Prize", prizePerWinner));
-                (bool success, ) = payable(winnerAddress).call{value: prizePerWinner}("");
-                require(success, "Transfer to first prize winner failed");
-                emit PrizeDistributed(winnerAddress, tickets[winningIndexes[j]].number, "First Prize", prizePerWinner);
+                uint256 prize = prizePerWinner;
+                distributePrize(winnerAddress, tickets[winningIndexes[j]].number, "First Prize", prize, newDraw.drawId, newDraw.winners);
             }
-            firstPrizeAmount = remainder; // 清空一等奖奖池
-        }
-
-        uint256 remainingBalance = address(this).balance; // 获取合约当前余额
-        if (remainingBalance > 0) {
-            uint256 amountToWithdraw = remainingBalance - firstPrizeAmount;
-            // payable(owner).transfer(amountToWithdraw); // 将剩余资金转移到合约拥有者
-            (bool success, ) = payable(owner).call{value: amountToWithdraw}("");
-            require(success, "Transfer to owner failed");
-            emit FundsWithdrawn(owner, amountToWithdraw); // 记录提取事件
+            firstPrizeAmount = remainder;
         }
 
         delete tickets;
-        // 更新上次开奖时间
-        lastDrawTime = block.timestamp;
+        lastDrawTime = currentTime;
 
-        emit LotteryDraw(lastDrawTime, winningNumber, winners); // 记录所有中奖者
+        emit LotteryDraw(newDraw.drawId, newDraw.drawTime, winningNumber, newDraw.winners.length);
+    }
+
+    function distributePrize(
+        address _winner,
+        string memory _number,
+        string memory _prize,
+        uint256 _amount,
+        uint256 _drawId,
+        Winner[] storage _drawWinners
+    ) internal {
+        (bool success, ) = payable(_winner).call{value: _amount}("");
+        require(success, "Transfer failed");
+
+        Winner memory newWinner = Winner(_winner, _number, _prize, _amount);
+        _drawWinners.push(newWinner);
+
+        emit PrizeDistributed(_winner, _number, _prize, _amount, _drawId);
+    }
+
+    function withdrawFunds(uint256 _amount) external onlyOwner {
+        require(_amount <= address(this).balance, "Insufficient balance");
+        (bool success, ) = payable(owner).call{value: _amount}("");
+        require(success, "Withdrawal failed");
+        emit FundsWithdrawn(owner, _amount);
     }
 
     function compareNumbers(string memory _ticketNumber, string memory _winningNumber) internal pure returns (uint256) {
@@ -188,7 +196,6 @@ contract Lottery {
     function padNumber(uint256 _number) internal pure returns (string memory) {
         require(_number < 10000000, "Number must be less than 10000000");
         
-        // 转换为字符串并填充前导零
         bytes memory numberBytes = new bytes(7);
         for (uint256 i = 0; i < 7; i++) {
             numberBytes[6 - i] = bytes1(uint8(48 + (_number % 10))); // 48 是字符 '0' 的 ASCII 码
@@ -197,12 +204,12 @@ contract Lottery {
         return string(numberBytes);
     }
 
-    function getTickets() public view returns (Ticket[] memory) {
-        return tickets;
+    function getDraws() public view returns (Draw[] memory) {
+        return draws;
     }
 
-    function getWinners() public view returns (Winner[] memory) {
-        return winners;
+    function getUserTickets(address _user) public view returns (Ticket[] memory) {
+        return userTickets[_user];
     }
 
     // Fallback functions to accept Ether
