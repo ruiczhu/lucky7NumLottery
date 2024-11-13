@@ -529,7 +529,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contract/luckyL.sol": "Lottery"
+			"contract/luckyLTestNetV1.sol": "Lottery"
 		},
 		"evmVersion": "cancun",
 		"libraries": {},
@@ -543,12 +543,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"contract/luckyL.sol": {
-			"keccak256": "0xd96b5e12327855f6146d69145204781ebdf80ad80b7195f27d54673b029b15d5",
+		"contract/luckyLTestNetV1.sol": {
+			"keccak256": "0xc13f8896f775784b6578ebe32800d89421760b5cf10e3596620c2cc9fb222810",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://e24f217f5a1189c22150dfcfa4a9dbb65e4e83370b51e309bea8844fa28f90c2",
-				"dweb:/ipfs/QmZ4Z1xMeXJHGaXzGid6jNu1Ej65uW4kPngmpJrf9YdNRf"
+				"bzz-raw://b91c233ce4d3da26e0c85340e704beab79c9e48dc32f37defe7baeea5ac1243b",
+				"dweb:/ipfs/QmRYPVfqgCuBqKSDERFNjZn7fR4X58tLy7R6hX2xdRoD6U"
 			]
 		}
 	},
