@@ -1,0 +1,45 @@
+{
+	"compiler": {
+		"version": "0.8.26+commit.8a97fa7a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contract/luckyL.sol": "PayableContract"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"contract/luckyL.sol": {
+			"keccak256": "0x03880d31738bd1703c94a40d622c9718aba3513bc0ffc6688bfaf250ff3cd202",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8dd725af65d3373b55f353cbc677bdc1eb052e134d52e2baadf7daa937b1658e",
+				"dweb:/ipfs/QmUjwe263af1jRz7uoAAh2p65nhgWWrtduEr48onHZvtng"
+			]
+		}
+	},
+	"version": 1
+}

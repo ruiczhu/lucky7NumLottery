@@ -7,7 +7,7 @@
 		"abi": [
 			{
 				"inputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "constructor"
 			},
 			{
@@ -202,6 +202,19 @@
 			{
 				"inputs": [],
 				"name": "fourthPrizeAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getBalance",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -455,11 +468,11 @@
 	},
 	"sources": {
 		"contract/luckyL.sol": {
-			"keccak256": "0x8ac3fb0998fbd5ad5d88bd12ad9c73d1fc90f28ab694c595546bba10fdd06ccd",
+			"keccak256": "0x03880d31738bd1703c94a40d622c9718aba3513bc0ffc6688bfaf250ff3cd202",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://55f0013684db177810bbbd17cd006645915ea95c3e24143ff3e6b2d1ad7e494c",
-				"dweb:/ipfs/QmQ8ChythBGNrS57yaztfKfrPPWB4z9Zkr1iszduDuWKxk"
+				"bzz-raw://8dd725af65d3373b55f353cbc677bdc1eb052e134d52e2baadf7daa937b1658e",
+				"dweb:/ipfs/QmUjwe263af1jRz7uoAAh2p65nhgWWrtduEr48onHZvtng"
 			]
 		}
 	},

@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+contract PayableContract {
+
+}
+
+
 contract Lottery {
     struct Ticket {
         address buyer;
@@ -47,10 +52,15 @@ contract Lottery {
         _;
     }
 
-    constructor() {
+    constructor() payable {
         owner = msg.sender;
         lastDrawTime = block.timestamp;
         firstPrizeAmount = 0;
+    }
+
+
+    function getBalance() public view returns (uint) {
+        return address(this).balance;
     }
 
     function pause() external onlyOwner {
